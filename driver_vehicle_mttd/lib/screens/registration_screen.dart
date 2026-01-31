@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/mttd_logo.dart';
+import '../widgets/styled_text_field.dart';
 import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -26,14 +28,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   void initState() {
     super.initState();
-    // Add listeners to all controllers to validate form on change
     _firstNameController.addListener(_validateForm);
     _lastNameController.addListener(_validateForm);
     _stationNumberController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
     _passwordController.addListener(() {
       _validateForm();
-      // Re-validate confirm password when password changes
       if (_confirmPasswordController.text.isNotEmpty) {
         _formKey.currentState?.validate();
       }
@@ -79,7 +79,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
 
       if (success && mounted) {
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Registration successful! Please login.'),
@@ -88,7 +87,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ),
         );
         
-        // Navigate to login screen
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
@@ -107,53 +105,66 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Account'),
-      ),
-      body: SafeArea(
-        child: Center(
+      backgroundColor: const Color(0xFF0F172A), // Fallback background color
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF0F172A), // Deep navy
+              Color(0xFF1E293B), // Charcoal
+              Color(0xFF0F172A), // Deep navy
+            ],
+          ),
+        ),
+        child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Icon
-                  Icon(
-                    Icons.person_add,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  
+                     // Circular Logo
+                  const Center(child: MTTDLogo(size: 70)),
+                  const SizedBox(height: 16),
                   // Title
-                  Text(
-                    'Register as Security Official',
-                    style: Theme.of(context).textTheme.displaySmall,
+                  const Text(
+                    'MTTD Verification Portal',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Create your account to access the system',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                  
+                  // Subtitle
+                  const Text(
+                    'MTTD Personnel Enrollment',
+                    style: TextStyle(
+                        fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white70,
+                      letterSpacing: 0.3,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                   
                   // First Name Field
-                  TextFormField(
+                  StyledTextField(
+                    label: 'FIRST NAME',
+                    hintText: 'John',
                     controller: _firstNameController,
                     textInputAction: TextInputAction.next,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'First Name *',
-                      prefixIcon: Icon(Icons.person),
-                      hintText: 'Enter your first name',
-                    ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'First name is required';
@@ -167,15 +178,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   const SizedBox(height: 16),
                   
                   // Last Name Field
-                  TextFormField(
+                  StyledTextField(
+                    label: 'LAST NAME',
+                    hintText: 'Doe',
                     controller: _lastNameController,
                     textInputAction: TextInputAction.next,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Last Name *',
-                      prefixIcon: Icon(Icons.person_outline),
-                      hintText: 'Enter your last name',
-                    ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Last name is required';
@@ -188,15 +196,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Station Number Field
-                  TextFormField(
+                  // Station Number / Unit Field
+                  StyledTextField(
+                    label: 'STATION NUMBER / UNIT',
+                    hintText: 'e.g. ACC-204',
                     controller: _stationNumberController,
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      labelText: 'Station Number *',
-                      prefixIcon: Icon(Icons.badge),
-                      hintText: 'Enter your unique station number',
-                      helperText: 'This must be unique',
+                    prefixIcon: const Icon(
+                      Icons.shield,
+                      color: Color(0xFF9CA3AF),
+                      size: 24,
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -210,15 +219,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Email Field
-                  TextFormField(
+                  // Email Address Field
+                  StyledTextField(
+                    label: 'EMAIL ADDRESS',
+                    hintText: 'officer@service.gov.gh',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(
-                      labelText: 'Email *',
-                      prefixIcon: Icon(Icons.email),
-                      hintText: 'Enter your email address',
+                    prefixIcon: const Icon(
+                      Icons.email_outlined,
+                      color: Color(0xFF9CA3AF),
+                      size: 24,
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -232,26 +243,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Password Field
-                  TextFormField(
+                  // Create Password Field
+                  StyledTextField(
+                    label: 'CREATE PASSWORD',
+                    hintText: 'Enter password',
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     textInputAction: TextInputAction.next,
-                    decoration: InputDecoration(
-                      labelText: 'Password *',
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                      hintText: 'Enter your password',
-                      helperText: 'Must be at least 6 characters',
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: Color(0xFF9CA3AF),
+                      size: 24,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -263,28 +265,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   
                   // Confirm Password Field
-                  TextFormField(
+                  StyledTextField(
+                    label: 'CONFIRM PASSWORD',
+                    hintText: 'Re-enter password',
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
                     textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => _handleRegistration(),
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password *',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureConfirmPassword = !_obscureConfirmPassword;
-                          });
-                        },
-                      ),
-                      hintText: 'Re-enter your password',
+                    onSubmitted: (_) => _handleRegistration(),
+                    prefixIcon: const Icon(
+                      Icons.shield_outlined,
+                      color: Color(0xFF9CA3AF),
+                      size: 24,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -296,15 +290,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 16),
                   
-                  // Register Button
+                  // REGISTER OFFICER Button (same style as SECURE LOGIN)
                   Consumer<AuthProvider>(
                     builder: (context, authProvider, _) {
+                      final isDisabled = authProvider.isLoading || !_isFormValid;
                       return ElevatedButton(
-                        onPressed: (authProvider.isLoading || !_isFormValid)
-                            ? null
-                            : _handleRegistration,
+                        onPressed: isDisabled ? null : _handleRegistration,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF3B82F6), // Blue
+                          foregroundColor: Colors.white,
+                          disabledBackgroundColor: const Color(0xFF1E3A5F), // Darker blue-gray when disabled
+                          disabledForegroundColor: Colors.white70, // Slightly faded white text
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: isDisabled ? 0 : 2, // No elevation when disabled
+                        ),
                         child: authProvider.isLoading
                             ? const SizedBox(
                                 height: 20,
@@ -314,27 +318,57 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Text('Create Account'),
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'REGISTER OFFICER',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1,
+                                      color: isDisabled ? Colors.white70 : Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.check_circle_outline,
+                                    size: 20,
+                                    color: isDisabled ? Colors.white70 : Colors.white,
+                                  ),
+                                ],
+                              ),
                       );
                     },
                   ),
                   const SizedBox(height: 16),
                   
-                  // Login Link
+                  // Already have an account text
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         'Already have an account? ',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
                       ),
-                      TextButton(
-                        onPressed: () {
+                      GestureDetector(
+                        onTap: () {
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(builder: (_) => const LoginScreen()),
                           );
                         },
-                        child: const Text('Login'),
+                        child: const Text(
+                          'Login here',
+                          style: TextStyle(
+                            color: Color(0xFFFFA500),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
                       ),
                     ],
                   ),
