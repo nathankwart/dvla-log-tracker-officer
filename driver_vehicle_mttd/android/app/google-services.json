@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "647158805882",
+    "project_id": "dvl-logs",
+    "storage_bucket": "dvl-logs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647158805882:android:7151a83822e84b6d7a12c3",
+        "android_client_info": {
+          "package_name": "com.dvl.driver_vehicle_log"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6Se--8bBIItL_LE-OBkSmTc3bPExZDT4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647158805882:android:4f21947eeed62c297a12c3",
+        "android_client_info": {
+          "package_name": "com.dvl.driver_vehicle_mttd"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6Se--8bBIItL_LE-OBkSmTc3bPExZDT4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

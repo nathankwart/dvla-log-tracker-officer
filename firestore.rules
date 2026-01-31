@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Vehicles collection - read-only for authenticated officers
+    match /vehicles/{vehicleId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Officers cannot write or modify data
+    }
+    
+    // Trip logs collection - read-only for authenticated officers
+    match /tripLogs/{tripId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Officers cannot write or modify data
+    }
+    
+    // Officers collection - for officer profiles
+    match /officers/{officerId} {
+      // Officers can read their own profile
+      allow read: if isAuthenticated() && request.auth.uid == officerId;
+      // Allow creation of own profile during registration
+      allow create: if isAuthenticated() && request.auth.uid == officerId;
+      // Prevent updates and deletes (read-only after creation)
+      allow update, delete: if false;
+    }
+    
+    // Allow queries on officers collection for checking station number uniqueness
+    // This is needed during registration to verify station numbers are unique
+    match /officers/{document=**} {
+      allow list: if isAuthenticated(); // Allow queries for authenticated users
+    }
+  }
+}
