@@ -10,6 +10,7 @@ class StyledTextField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+  final TextCapitalization textCapitalization;
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
   final void Function(String)? onSubmitted;
@@ -26,6 +27,7 @@ class StyledTextField extends StatelessWidget {
     this.suffixIcon,
     this.keyboardType,
     this.textInputAction,
+    this.textCapitalization = TextCapitalization.none,
     this.validator,
     this.onChanged,
     this.onSubmitted,
@@ -53,6 +55,7 @@ class StyledTextField extends StatelessWidget {
           enabled: enabled,
           keyboardType: keyboardType,
           textInputAction: textInputAction,
+          textCapitalization: textCapitalization,
           validator: validator,
           onChanged: onChanged,
           onFieldSubmitted: onSubmitted,

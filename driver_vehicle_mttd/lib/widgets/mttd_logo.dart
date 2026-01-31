@@ -21,27 +21,29 @@ class MTTDLogo extends StatelessWidget {
           width: 3,
         ),
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.security,
-              size: size * 0.4,
-              color: const Color(0xFFD4AF37), // Gold icon
-            ),
-            const SizedBox(height: 4),
-            Text(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Central emblem/star
+          Icon(
+            Icons.star,
+            size: size * 0.35,
+            color: const Color(0xFFD4AF37), // Gold
+          ),
+          // Text around the circle (simplified representation)
+          Positioned(
+            bottom: size * 0.15,
+            child: Text(
               'MTTD',
               style: TextStyle(
-                fontSize: size * 0.15,
+                fontSize: size * 0.12,
                 fontWeight: FontWeight.bold,
                 color: const Color(0xFFD4AF37),
-                letterSpacing: 1,
+                letterSpacing: 2,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

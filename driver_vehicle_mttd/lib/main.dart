@@ -48,11 +48,11 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
+        // Show login screen immediately, auth state will update via listener
         if (authProvider.isAuthenticated) {
           return const ScannerScreen();
-        } else {
-          return const LoginScreen();
         }
+        return const LoginScreen();
       },
     );
   }
