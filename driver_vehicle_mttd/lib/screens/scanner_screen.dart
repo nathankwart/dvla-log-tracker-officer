@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/qr_scanner_service.dart';
+import 'login_screen.dart';
 import 'trip_logs_screen.dart';
 
 class ScannerScreen extends StatefulWidget {
@@ -79,20 +80,26 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan Vehicle QR Code'),
-        actions: [
+    return PopScope(
+      canPop: false, // Prevent system back button from navigating back
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Scan Vehicle QR Code'),
+          automaticallyImplyLeading: false, // Prevent back button from appearing
+          actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async {
-              final authProvider =
-                  Provider.of<AuthProvider>(context, listen: false);
-              await authProvider.signOut();
-              if (mounted) {
-                Navigator.of(context).pushReplacementNamed('/login');
-              }
-            },
+              onPressed: () async {
+                final authProvider =
+                    Provider.of<AuthProvider>(context, listen: false);
+                await authProvider.signOut();
+                if (mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false, // Clear navigation stack
+                  );
+                }
+              },
             tooltip: 'Logout',
           ),
         ],
@@ -242,6 +249,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

@@ -31,7 +31,18 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     } catch (e) {
-      throw 'An unexpected error occurred. Please try again.';
+      // Handle generic errors with better messages
+      final errorString = e.toString().toLowerCase();
+      if (errorString.contains('network') || errorString.contains('socket')) {
+        throw 'Network connection failed. Please check your internet connection and try again.';
+      } else if (errorString.contains('timeout')) {
+        throw 'Request timed out. Please check your connection and try again.';
+      } else if (errorString.contains('recaptcha') || errorString.contains('captcha')) {
+        throw 'Authentication service error. Please try again in a moment.';
+      } else if (errorString.contains('permission') || errorString.contains('unauthorized')) {
+        throw 'Authentication failed. Please check your credentials and try again.';
+      }
+      throw 'Unable to sign in. Please check your email and password, then try again.';
     }
   }
 
@@ -128,23 +139,40 @@ class AuthService {
   String _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {
       case 'user-not-found':
-        return 'No officer found with this email.';
+        return 'No account found with this email address. Please check your email or create a new account.';
       case 'wrong-password':
-        return 'Incorrect password. Please try again.';
+        return 'Incorrect password. Please check your password and try again.';
       case 'invalid-email':
-        return 'Invalid email address.';
+        return 'Invalid email address. Please enter a valid email address.';
       case 'user-disabled':
-        return 'This account has been disabled.';
+        return 'This account has been disabled. Please contact your administrator.';
       case 'too-many-requests':
-        return 'Too many failed attempts. Please try again later.';
+        return 'Too many failed login attempts. Please wait a few minutes and try again.';
       case 'network-request-failed':
-        return 'Network error. Please check your connection.';
+        return 'Network connection failed. Please check your internet connection and try again.';
       case 'email-already-in-use':
-        return 'An account with this email already exists.';
+        return 'An account with this email already exists. Please use a different email or sign in instead.';
       case 'weak-password':
-        return 'Password is too weak. Please use a stronger password.';
+        return 'Password is too weak. Please use a stronger password (at least 6 characters).';
+      case 'operation-not-allowed':
+        return 'Email/password authentication is not enabled. Please contact support.';
+      case 'invalid-credential':
+        return 'Invalid email or password. Please check your credentials and try again.';
+      case 'user-mismatch':
+        return 'The provided credentials do not match an existing user.';
+      case 'requires-recent-login':
+        return 'This operation requires recent authentication. Please sign out and sign in again.';
       default:
-        return 'Authentication failed. Please try again.';
+        // Check error message for common issues
+        final message = e.message?.toLowerCase() ?? '';
+        if (message.contains('network') || message.contains('connection')) {
+          return 'Network error. Please check your internet connection and try again.';
+        } else if (message.contains('timeout')) {
+          return 'Request timed out. Please try again.';
+        } else if (message.contains('recaptcha') || message.contains('captcha')) {
+          return 'Authentication service temporarily unavailable. Please try again in a moment.';
+        }
+        return 'Login failed: ${e.message ?? 'Please check your credentials and try again.'}';
     }
   }
 }

@@ -9,7 +9,6 @@ import 'screens/scanner_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
     try {
     await Firebase.initializeApp();
   } catch (e) {

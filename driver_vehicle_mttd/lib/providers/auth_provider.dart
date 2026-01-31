@@ -42,7 +42,14 @@ class AuthProvider with ChangeNotifier {
       return true;
     } catch (e) {
       _isLoading = false;
-      _errorMessage = e.toString();
+      // Extract clean error message (remove "Exception: " prefix if present)
+      String errorMsg = e.toString();
+      if (errorMsg.startsWith('Exception: ')) {
+        errorMsg = errorMsg.substring(11);
+      } else if (errorMsg.startsWith('FirebaseAuthException: ')) {
+        errorMsg = errorMsg.substring(24);
+      }
+      _errorMessage = errorMsg;
       notifyListeners();
       return false;
     }

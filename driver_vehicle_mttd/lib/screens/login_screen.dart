@@ -33,14 +33,39 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (success && mounted) {
-        Navigator.of(context).pushReplacement(
+        // Clear navigation stack and navigate to scanner screen
+        Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const ScannerScreen()),
+          (route) => false, // Remove all previous routes
         );
       } else if (mounted) {
+        // Show error in a more prominent way
+        final errorMessage = authProvider.errorMessage ?? 'Login failed. Please try again.';
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.errorMessage ?? 'Login failed'),
+            content: Row(
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    errorMessage,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
       }
