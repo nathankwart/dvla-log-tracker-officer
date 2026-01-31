@@ -5,7 +5,7 @@ import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/trip_logs_provider.dart';
 import 'screens/login_screen.dart';
-import 'screens/scanner_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
         home: const AuthWrapper(),
         routes: {
           '/login': (context) => const LoginScreen(),
-          '/scanner': (context) => const ScannerScreen(),
+          '/home': (context) => const HomeScreen(),
         },
       ),
     );
@@ -50,7 +50,7 @@ class AuthWrapper extends StatelessWidget {
       builder: (context, authProvider, _) {
         // Show login screen immediately, auth state will update via listener
         if (authProvider.isAuthenticated) {
-          return const ScannerScreen();
+          return const HomeScreen();
         }
         return const LoginScreen();
       },
