@@ -14,10 +14,7 @@ void main() async {
     await Firebase.initializeApp();
   } catch (e) {
     debugPrint('Firebase initialization error: $e');
-    debugPrint('Please configure Firebase before running the app');
   }
-  
-
   runApp(const MyApp());
 }
 
