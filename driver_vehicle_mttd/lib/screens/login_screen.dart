@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/mttd_logo.dart';
 import '../widgets/styled_text_field.dart';
-import 'home_screen.dart';
+import 'main_page.dart';
 import 'registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (success && mounted) {
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const MainPage()),
           (route) => false,
         );
       } else if (mounted) {
