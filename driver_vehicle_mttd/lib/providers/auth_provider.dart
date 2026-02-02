@@ -1,14 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
+import '../services/firestore_service.dart';
+import '../models/officer.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
+  final FirestoreService _firestoreService = FirestoreService();
   User? _user;
+  Officer? _officer;
   bool _isLoading = false;
   String? _errorMessage;
 
   User? get user => _user;
+  Officer? get officer => _officer;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _user != null;
@@ -19,10 +24,28 @@ class AuthProvider with ChangeNotifier {
 
   void _init() {
     _user = _authService.currentUser;
+    if (_user != null) {
+      _fetchOfficerData(_user!.uid);
+    }
     _authService.authStateChanges.listen((User? user) {
       _user = user;
-      notifyListeners();
+      if (user != null) {
+        _fetchOfficerData(user.uid);
+      } else {
+        _officer = null;
+        notifyListeners();
+      }
     });
+  }
+
+  Future<void> _fetchOfficerData(String userId) async {
+    try {
+      _officer = await _firestoreService.getOfficerById(userId);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error fetching officer data: $e');
+      // Don't set error message here to avoid disrupting auth flow
+    }
   }
 
   Future<bool> signIn(String email, String password) async {
@@ -36,6 +59,9 @@ class AuthProvider with ChangeNotifier {
         password: password,
       );
       _user = userCredential.user;
+      if (_user != null) {
+        await _fetchOfficerData(_user!.uid);
+      }
       _isLoading = false;
       _errorMessage = null;
       notifyListeners();
@@ -75,6 +101,9 @@ class AuthProvider with ChangeNotifier {
         stationNumber: stationNumber,
       );
       _user = userCredential.user;
+      if (_user != null) {
+        await _fetchOfficerData(_user!.uid);
+      }
       _isLoading = false;
       _errorMessage = null;
       notifyListeners();
@@ -94,6 +123,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _authService.signOut();
       _user = null;
+      _officer = null;
       _isLoading = false;
       _errorMessage = null;
       notifyListeners();

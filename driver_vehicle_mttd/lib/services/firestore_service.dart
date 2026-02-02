@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/trip_log.dart';
 import '../models/vehicle.dart';
+import '../models/officer.dart';
 import '../core/constants/app_constants.dart';
 
 class FirestoreService {
@@ -100,6 +101,23 @@ class FirestoreService {
       });
     } catch (e) {
       throw 'Error creating officer profile: ${e.toString()}';
+    }
+  }
+
+  // Get officer by user ID
+  Future<Officer?> getOfficerById(String userId) async {
+    try {
+      final doc = await _firestore
+          .collection(AppConstants.officersCollection)
+          .doc(userId)
+          .get();
+
+      if (doc.exists && doc.data() != null) {
+        return Officer.fromFirestore(doc.data()!, doc.id);
+      }
+      return null;
+    } catch (e) {
+      throw 'Error fetching officer data: ${e.toString()}';
     }
   }
 }
