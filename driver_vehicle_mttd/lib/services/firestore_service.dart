@@ -42,6 +42,23 @@ class FirestoreService {
     }
   }
 
+  // Get all trip logs for a user (chronologically ordered)
+  Future<List<TripLog>> getTripLogsByUserId(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(AppConstants.tripLogsCollection)
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => TripLog.fromFirestore(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      throw 'Error fetching trip logs: ${e.toString()}';
+    }
+  }
+
   // Stream trip logs for real-time updates
   Stream<List<TripLog>> streamTripLogsByVehicleId(String vehicleId) {
     return _firestore

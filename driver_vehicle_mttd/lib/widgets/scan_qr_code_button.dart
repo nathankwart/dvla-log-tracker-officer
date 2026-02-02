@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/qr_scanner_screen.dart';
 
 class ScanQrCodeButton extends StatefulWidget {
   const ScanQrCodeButton({super.key});
@@ -12,7 +13,13 @@ class _ScanQrCodeButtonState extends State<ScanQrCodeButton> {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) => InkWell(
-        onTap: () {},
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const QRScannerScreen(),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
         child: Container(
           width: double.infinity,

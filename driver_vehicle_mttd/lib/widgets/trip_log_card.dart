@@ -34,7 +34,7 @@ class TripLogCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    tripLog.timeOfReturn != null ? 'Completed' : 'In Progress',
+                    tripLog.status.isNotEmpty ? tripLog.status.toUpperCase() : 'PENDING',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.w600,
@@ -56,7 +56,7 @@ class TripLogCard extends StatelessWidget {
             _buildDetailRow(
               context,
               'Vehicle',
-              '${tripLog.registrationNumber} - ${tripLog.vehicleDescription}',
+              '${tripLog.registrationNumber} - ${tripLog.vehicleMake} ${tripLog.vehicleModel} (${tripLog.vehicleColor})',
               Icons.directions_car,
             ),
             const SizedBox(height: 12),
@@ -75,6 +75,26 @@ class TripLogCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             
+            // Location Information
+            if (tripLog.startLocation != null) ...[
+              _buildDetailRow(
+                context,
+                'Start Location',
+                tripLog.startLocation!.address,
+                Icons.location_on,
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (tripLog.destinationLocation != null) ...[
+              _buildDetailRow(
+                context,
+                'Destination',
+                tripLog.destinationLocation!.address,
+                Icons.place,
+              ),
+              const SizedBox(height: 12),
+            ],
+            
             // Time Information
             Row(
               children: [
@@ -82,7 +102,7 @@ class TripLogCard extends StatelessWidget {
                   child: _buildTimeInfo(
                     context,
                     'Leaving',
-                    DateFormatter.formatTime(tripLog.timeOfLeaving),
+                    tripLog.timeLeaving,
                     Icons.arrow_upward,
                     Colors.green,
                   ),
@@ -92,24 +112,22 @@ class TripLogCard extends StatelessWidget {
                   child: _buildTimeInfo(
                     context,
                     'Return',
-                    tripLog.timeOfReturn != null
-                        ? DateFormatter.formatTime(tripLog.timeOfReturn!)
-                        : 'Not returned',
+                    tripLog.timeReturn.isNotEmpty ? tripLog.timeReturn : 'Not returned',
                     Icons.arrow_downward,
-                    tripLog.timeOfReturn != null ? Colors.blue : Colors.grey,
+                    tripLog.timeReturn.isNotEmpty ? Colors.blue : Colors.grey,
                   ),
                 ),
               ],
             ),
             
             // Signature if available
-            if (tripLog.signatureOfPersonMakingEntry != null) ...[
+            if (tripLog.signature != null && tripLog.signature!.isNotEmpty) ...[
               const SizedBox(height: 12),
               const Divider(),
               _buildDetailRow(
                 context,
-                'Entry Signature',
-                tripLog.signatureOfPersonMakingEntry!,
+                'Signature',
+                'Available',
                 Icons.edit,
               ),
             ],

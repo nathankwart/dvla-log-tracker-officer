@@ -52,6 +52,30 @@ class TripLogsProvider with ChangeNotifier {
     }
   }
 
+  Future<void> fetchTripLogsByUserId(String userId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _tripLogs = [];
+    _vehicle = null;
+    notifyListeners();
+
+    try {
+      // Fetch trip logs for the user
+      _tripLogs = await _firestoreService.getTripLogsByUserId(userId);
+      
+      if (_tripLogs.isEmpty) {
+        _errorMessage = 'No trip logs found for this user.';
+      }
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Error fetching trip logs: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
   void clearData() {
     _vehicle = null;
     _tripLogs = [];
