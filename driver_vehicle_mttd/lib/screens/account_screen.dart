@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../core/theme/app_theme.dart';
 import 'login_screen.dart';
 
 class AccountScreen extends StatelessWidget {
@@ -80,7 +79,7 @@ class AccountScreen extends StatelessWidget {
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.darkGold,
+                                color: colorScheme.primary,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
@@ -229,12 +228,12 @@ class AccountScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.darkGold.withOpacity(0.2),
+              color: theme.colorScheme.primary.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
-              color: AppTheme.darkGold,
+              color: theme.colorScheme.primary,
               size: 24,
             ),
           ),
