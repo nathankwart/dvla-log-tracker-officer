@@ -42,6 +42,46 @@ class FirestoreService {
     }
   }
 
+  // Get all trip logs for a user (chronologically ordered)
+  Future<List<TripLog>> getTripLogsByUserId(String userId) async {
+    try {
+      // First try with orderBy (requires composite index)
+      try {
+        final querySnapshot = await _firestore
+            .collection(AppConstants.tripLogsCollection)
+            .where('userId', isEqualTo: userId)
+            .orderBy('createdAt', descending: true)
+            .get();
+
+        return querySnapshot.docs
+            .map((doc) => TripLog.fromFirestore(doc.data(), doc.id))
+            .toList();
+      } catch (e) {
+        // If index error, fallback to fetching without orderBy and sort in memory
+        final errorString = e.toString();
+        if (errorString.contains('index') || errorString.contains('failed-precondition')) {
+          // Fetch without orderBy
+          final querySnapshot = await _firestore
+              .collection(AppConstants.tripLogsCollection)
+              .where('userId', isEqualTo: userId)
+              .get();
+
+          // Sort in memory by createdAt descending
+          final tripLogs = querySnapshot.docs
+              .map((doc) => TripLog.fromFirestore(doc.data(), doc.id))
+              .toList();
+          
+          tripLogs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          return tripLogs;
+        }
+        // Re-throw if it's a different error
+        rethrow;
+      }
+    } catch (e) {
+      throw 'Error fetching trip logs: ${e.toString()}';
+    }
+  }
+
   // Stream trip logs for real-time updates
   Stream<List<TripLog>> streamTripLogsByVehicleId(String vehicleId) {
     return _firestore

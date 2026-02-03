@@ -1,17 +1,37 @@
 import '../core/constants/app_constants.dart';
 
 class QRScannerService {
-  // Extract vehicle ID from QR code
-  String? extractVehicleId(String qrCodeData) {
+  // Extract user ID from QR code
+  // QR code payload format: "dvlog:<userId>" (e.g., "dvlog:qgkI4wEFbITCCuJvrZyqQ8hYl4A2")
+  String? extractUserId(String qrCodeData) {
     try {
-      // Check if QR code has expected format
-      if (qrCodeData.startsWith(AppConstants.qrCodePrefix)) {
-        return qrCodeData.replaceFirst(AppConstants.qrCodePrefix, '');
+      // Trim whitespace
+      final trimmed = qrCodeData.trim();
+      
+      // Check if QR code is empty
+      if (trimmed.isEmpty) {
+        return null;
       }
       
-      // If QR code is just the vehicle ID itself
-      if (qrCodeData.isNotEmpty && qrCodeData.length > 0) {
-        return qrCodeData.trim();
+      // Check if QR code has the expected format: "dvlog:<userId>"
+      if (trimmed.startsWith(AppConstants.qrCodeUserPrefix)) {
+        final userId = trimmed.replaceFirst(AppConstants.qrCodeUserPrefix, '').trim();
+        
+        // Validate userId format (alphanumeric, reasonable length)
+        if (userId.isNotEmpty && 
+            userId.length >= 20 && 
+            userId.length <= 50 &&
+            RegExp(r'^[a-zA-Z0-9]+$').hasMatch(userId)) {
+          return userId;
+        }
+      }
+      
+      // Fallback: Check if QR code is just the userId itself (for backward compatibility)
+      if (trimmed.length >= 20 && trimmed.length <= 50) {
+        // Validate it's alphanumeric (Firestore IDs are alphanumeric)
+        if (RegExp(r'^[a-zA-Z0-9]+$').hasMatch(trimmed)) {
+          return trimmed;
+        }
       }
       
       return null;
@@ -20,17 +40,11 @@ class QRScannerService {
     }
   }
 
-  // Validate QR code format
+  // Validate QR code format (should be "dvlog:<userId>" or just userId)
   bool isValidQRCode(String qrCodeData) {
     if (qrCodeData.isEmpty) return false;
     
-    // Check if it starts with prefix or is a valid vehicle ID format
-    if (qrCodeData.startsWith(AppConstants.qrCodePrefix)) {
-      final vehicleId = qrCodeData.replaceFirst(AppConstants.qrCodePrefix, '');
-      return vehicleId.isNotEmpty;
-    }
-    
-    // Allow direct vehicle ID (alphanumeric, reasonable length)
-    return qrCodeData.trim().isNotEmpty && qrCodeData.length <= 100;
+    final userId = extractUserId(qrCodeData);
+    return userId != null;
   }
 }

@@ -1,7 +1,7 @@
 class AppConstants {
   // Firestore Collections
   static const String vehiclesCollection = 'vehicles';
-  static const String tripLogsCollection = 'tripLogs';
+  static const String tripLogsCollection = 'trips';
   static const String officersCollection = 'officers';
 
   // Shared Preferences Keys
@@ -10,6 +10,7 @@ class AppConstants {
 
   // QR Code Format
   static const String qrCodePrefix = 'VEHICLE:';
+  static const String qrCodeUserPrefix = 'dvlog:';
   
   // Error Messages
   static const String noLogsMessage = 'No trip logs found for this vehicle.';
