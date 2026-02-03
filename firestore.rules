@@ -12,7 +12,13 @@ service cloud.firestore {
       allow write: if false; // Officers cannot write or modify data
     }
     
-    // Trip logs collection - read-only for authenticated officers
+    // Trips collection - read-only for authenticated officers
+    match /trips/{tripId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Officers cannot write or modify data
+    }
+    
+    // Legacy tripLogs collection (if still exists) - read-only for authenticated officers
     match /tripLogs/{tripId} {
       allow read: if isAuthenticated();
       allow write: if false; // Officers cannot write or modify data

@@ -73,14 +73,8 @@ class TripLog {
     return TripLog(
       id: id,
       userId: data['userId'] ?? '',
-      createdAt: data['createdAt'] != null
-          ? (data['createdAt'] as Timestamp).toDate()
-          : DateTime.now(),
-      date: data['date'] != null
-          ? (data['date'] is Timestamp
-              ? (data['date'] as Timestamp).toDate()
-              : DateTime.parse(data['date']))
-          : DateTime.now(),
+      createdAt: _parseDateTime(data['createdAt']),
+      date: _parseDateTime(data['date']),
       status: data['status'] ?? '',
       driverName: data['driverName'] ?? '',
       registrationNumber: data['registrationNumber'] ?? '',
@@ -100,6 +94,27 @@ class TripLog {
           : null,
       signature: data['signature'],
     );
+  }
+
+  // Helper method to parse DateTime from Firestore (handles both Timestamp and ISO string)
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) {
+      return DateTime.now();
+    }
+    
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    
+    if (value is String) {
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        return DateTime.now();
+      }
+    }
+    
+    return DateTime.now();
   }
 
   Map<String, dynamic> toMap() {
