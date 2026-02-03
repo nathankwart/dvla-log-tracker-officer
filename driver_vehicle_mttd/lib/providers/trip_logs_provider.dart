@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/trip_log.dart';
 import '../models/vehicle.dart';
+import '../models/user_profile.dart';
 import '../services/firestore_service.dart';
 
 class TripLogsProvider with ChangeNotifier {
@@ -8,31 +9,17 @@ class TripLogsProvider with ChangeNotifier {
   
   Vehicle? _vehicle;
   List<TripLog> _tripLogs = [];
+  UserProfile? _userProfile;
   bool _isLoading = false;
   String? _errorMessage;
 
   Vehicle? get vehicle => _vehicle;
   List<TripLog> get tripLogs => _tripLogs;
+  UserProfile? get userProfile => _userProfile;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get hasLogs => _tripLogs.isNotEmpty;
   bool get hasError => _errorMessage != null;
-
-  // Extract user profile data from trip logs
-  Map<String, String>? get userProfile {
-    if (_tripLogs.isEmpty) return null;
-    
-    // Use the first trip log to extract profile information
-    final firstLog = _tripLogs.first;
-    return {
-      'driverName': firstLog.driverName,
-      'registrationNumber': firstLog.registrationNumber,
-      'vehicleMake': firstLog.vehicleMake,
-      'vehicleModel': firstLog.vehicleModel,
-      'vehicleColor': firstLog.vehicleColor,
-      'vehicleInfo': '${firstLog.vehicleMake} ${firstLog.vehicleModel} (${firstLog.vehicleColor})',
-    };
-  }
 
   Future<void> fetchTripLogsByVehicleId(String vehicleId) async {
     _isLoading = true;
@@ -72,6 +59,7 @@ class TripLogsProvider with ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     _tripLogs = [];
+    _userProfile = null;
     _vehicle = null;
     notifyListeners();
 
@@ -81,6 +69,9 @@ class TripLogsProvider with ChangeNotifier {
       
       if (_tripLogs.isEmpty) {
         _errorMessage = 'No trip logs found for this user.';
+      } else {
+        // Calculate user profile from trip logs
+        _userProfile = _calculateUserProfile(userId, _tripLogs);
       }
 
       _isLoading = false;
@@ -92,9 +83,51 @@ class TripLogsProvider with ChangeNotifier {
     }
   }
 
+  // Calculate user profile from trip logs (aggregate most common values)
+  UserProfile _calculateUserProfile(String userId, List<TripLog> tripLogs) {
+    if (tripLogs.isEmpty) {
+      return UserProfile(
+        userId: userId,
+        driverName: '',
+        registrationNumber: '',
+        vehicleMake: '',
+        vehicleModel: '',
+        vehicleColor: '',
+        totalTrips: 0,
+      );
+    }
+
+    // Get most common driver name
+    final driverNameCounts = <String, int>{};
+    for (var log in tripLogs) {
+      driverNameCounts[log.driverName] = (driverNameCounts[log.driverName] ?? 0) + 1;
+    }
+    final driverName = driverNameCounts.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
+
+    // Get most common vehicle details (use first trip log's vehicle as representative)
+    final firstLog = tripLogs.first;
+    final registrationNumber = firstLog.registrationNumber;
+    final vehicleMake = firstLog.vehicleMake;
+    final vehicleModel = firstLog.vehicleModel;
+    final vehicleColor = firstLog.vehicleColor;
+
+    return UserProfile(
+      userId: userId,
+      driverName: driverName,
+      registrationNumber: registrationNumber,
+      vehicleMake: vehicleMake,
+      vehicleModel: vehicleModel,
+      vehicleColor: vehicleColor,
+      totalTrips: tripLogs.length,
+    );
+  }
+
   void clearData() {
     _vehicle = null;
     _tripLogs = [];
+    _userProfile = null;
     _errorMessage = null;
     notifyListeners();
   }

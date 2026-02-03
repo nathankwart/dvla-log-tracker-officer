@@ -45,7 +45,7 @@ class TripLogCard extends StatelessWidget {
             ),
             const Divider(height: 24),
             
-            // Trip Details (Profile data removed - shown in profile card)
+            // Trip Details (removed driver and vehicle - shown in profile card)
             _buildDetailRow(
               context,
               'Reason',
