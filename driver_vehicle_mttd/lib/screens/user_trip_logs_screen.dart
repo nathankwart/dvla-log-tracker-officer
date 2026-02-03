@@ -15,6 +15,8 @@ class UserTripLogsScreen extends StatefulWidget {
 }
 
 class _UserTripLogsScreenState extends State<UserTripLogsScreen> {
+  bool _showTripLogs = false;
+
   @override
   void initState() {
     super.initState();
@@ -94,15 +96,193 @@ class _UserTripLogsScreenState extends State<UserTripLogsScreen> {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: provider.tripLogs.length,
-            itemBuilder: (context, index) {
-              return TripLogCard(tripLog: provider.tripLogs[index]);
-            },
+          final profile = provider.userProfile;
+          
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile Summary Card
+                if (profile != null) _buildProfileCard(context, theme, profile, provider),
+                
+                // Trip Logs Section
+                if (_showTripLogs) ...[
+                  const SizedBox(height: 24),
+                  Text(
+                    'Trip History',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: provider.tripLogs.length,
+                    itemBuilder: (context, index) {
+                      return TripLogCard(tripLog: provider.tripLogs[index]);
+                    },
+                  ),
+                ],
+              ],
+            ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildProfileCard(BuildContext context, ThemeData theme, Map<String, String> profile, TripLogsProvider provider) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _showTripLogs = !_showTripLogs;
+          });
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.person,
+                      color: theme.colorScheme.primary,
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Driver Profile',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          profile['driverName'] ?? 'Unknown',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    _showTripLogs ? Icons.expand_less : Icons.expand_more,
+                    color: theme.colorScheme.primary,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Divider(),
+              const SizedBox(height: 16),
+              _buildProfileDetail(
+                context,
+                theme,
+                Icons.directions_car,
+                'Vehicle',
+                profile['vehicleInfo'] ?? 'N/A',
+              ),
+              const SizedBox(height: 16),
+              _buildProfileDetail(
+                context,
+                theme,
+                Icons.confirmation_number,
+                'Registration Number',
+                profile['registrationNumber'] ?? 'N/A',
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _showTripLogs
+                            ? 'Tap to hide trip logs'
+                            : 'Tap to view ${provider.tripLogs.length} trip log${provider.tripLogs.length != 1 ? 's' : ''}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileDetail(
+    BuildContext context,
+    ThemeData theme,
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

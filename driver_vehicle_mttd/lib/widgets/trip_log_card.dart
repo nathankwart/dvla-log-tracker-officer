@@ -45,21 +45,7 @@ class TripLogCard extends StatelessWidget {
             ),
             const Divider(height: 24),
             
-            // Trip Details
-            _buildDetailRow(
-              context,
-              'Driver',
-              tripLog.driverName,
-              Icons.person,
-            ),
-            const SizedBox(height: 12),
-            _buildDetailRow(
-              context,
-              'Vehicle',
-              '${tripLog.registrationNumber} - ${tripLog.vehicleMake} ${tripLog.vehicleModel} (${tripLog.vehicleColor})',
-              Icons.directions_car,
-            ),
-            const SizedBox(height: 12),
+            // Trip Details (Profile data removed - shown in profile card)
             _buildDetailRow(
               context,
               'Reason',

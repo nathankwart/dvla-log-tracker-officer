@@ -18,6 +18,22 @@ class TripLogsProvider with ChangeNotifier {
   bool get hasLogs => _tripLogs.isNotEmpty;
   bool get hasError => _errorMessage != null;
 
+  // Extract user profile data from trip logs
+  Map<String, String>? get userProfile {
+    if (_tripLogs.isEmpty) return null;
+    
+    // Use the first trip log to extract profile information
+    final firstLog = _tripLogs.first;
+    return {
+      'driverName': firstLog.driverName,
+      'registrationNumber': firstLog.registrationNumber,
+      'vehicleMake': firstLog.vehicleMake,
+      'vehicleModel': firstLog.vehicleModel,
+      'vehicleColor': firstLog.vehicleColor,
+      'vehicleInfo': '${firstLog.vehicleMake} ${firstLog.vehicleModel} (${firstLog.vehicleColor})',
+    };
+  }
+
   Future<void> fetchTripLogsByVehicleId(String vehicleId) async {
     _isLoading = true;
     _errorMessage = null;
