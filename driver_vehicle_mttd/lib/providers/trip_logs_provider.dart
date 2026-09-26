@@ -55,6 +55,44 @@ class TripLogsProvider with ChangeNotifier {
     }
   }
 
+  Future<void> fetchTripLogsByRegistrationNumber(String registrationNumber) async {
+    _isLoading = true;
+    _errorMessage = null;
+    _tripLogs = [];
+    _userProfile = null;
+    _vehicle = null;
+    notifyListeners();
+
+    try {
+      _tripLogs = await _firestoreService.getTripLogsByRegistrationNumber(
+        registrationNumber,
+      );
+
+      if (_tripLogs.isEmpty) {
+        _vehicle = await _firestoreService.getVehicleByRegistrationNumber(
+          registrationNumber,
+        );
+        if (_vehicle != null) {
+          _tripLogs = await _firestoreService.getTripLogsByVehicleId(_vehicle!.id);
+        }
+      }
+
+      if (_tripLogs.isEmpty) {
+        _errorMessage =
+            'No records found for DV number "$registrationNumber".';
+      } else {
+        _userProfile = _calculateUserProfile(_tripLogs.first.userId, _tripLogs);
+      }
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = 'Error fetching trip logs: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
   Future<void> fetchTripLogsByUserId(String userId) async {
     _isLoading = true;
     _errorMessage = null;

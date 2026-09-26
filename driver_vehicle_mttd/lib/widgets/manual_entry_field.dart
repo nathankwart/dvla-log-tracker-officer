@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/user_trip_logs_screen.dart';
 
 class ManualEntryField extends StatefulWidget {
   const ManualEntryField({super.key});
@@ -16,7 +17,22 @@ class _ManualEntryFieldState extends State<ManualEntryField> {
   }
 
   void _handleManualEntry() {
-    print('Manual entry: ${_dvNumberController.text}');
+    final dvNumber = _dvNumberController.text.trim();
+    if (dvNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a DV number'),
+        ),
+      );
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => UserTripLogsScreen(registrationNumber: dvNumber),
+      ),
+    );
   }
 
   @override
@@ -51,6 +67,8 @@ class _ManualEntryFieldState extends State<ManualEntryField> {
                 child: TextField(
                   controller: _dvNumberController,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => _handleManualEntry(),
                   decoration: InputDecoration(
                     hintText: 'DV 1234 - 24',
                     hintStyle: const TextStyle(
