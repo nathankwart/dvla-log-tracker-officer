@@ -42,6 +42,83 @@ class FirestoreService {
     }
   }
 
+  // Get trip logs for a DV plate / registration number.
+  // Matches common spacing and dash variants officers may type.
+  Future<List<TripLog>> getTripLogsByRegistrationNumber(
+    String registrationNumber,
+  ) async {
+    final variants = _registrationVariants(registrationNumber);
+    if (variants.isEmpty) return [];
+
+    try {
+      final querySnapshot = await _firestore
+          .collection(AppConstants.tripLogsCollection)
+          .where('registrationNumber', whereIn: variants)
+          .get();
+
+      final tripLogs = querySnapshot.docs
+          .map((doc) => TripLog.fromFirestore(doc.data(), doc.id))
+          .toList();
+      tripLogs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return tripLogs;
+    } catch (e) {
+      throw 'Error fetching trip logs: ${e.toString()}';
+    }
+  }
+
+  // Get a vehicle document by DV plate / registration number.
+  Future<Vehicle?> getVehicleByRegistrationNumber(
+    String registrationNumber,
+  ) async {
+    final variants = _registrationVariants(registrationNumber);
+    if (variants.isEmpty) return null;
+
+    try {
+      final querySnapshot = await _firestore
+          .collection(AppConstants.vehiclesCollection)
+          .where('registrationNumber', whereIn: variants)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) return null;
+      final doc = querySnapshot.docs.first;
+      return Vehicle.fromFirestore(doc.data(), doc.id);
+    } catch (e) {
+      throw 'Error fetching vehicle information: ${e.toString()}';
+    }
+  }
+
+  // Build a small set of equivalent plate strings for an equality query.
+  List<String> _registrationVariants(String registrationNumber) {
+    final trimmed = registrationNumber.trim();
+    if (trimmed.isEmpty) return [];
+
+    final collapsed = trimmed.replaceAll(RegExp(r'\s+'), ' ');
+    final upper = collapsed
+        .toUpperCase()
+        .replaceAll(RegExp(r'[\u2010-\u2015]'), '-');
+    final compact = upper.replaceAll(' ', '');
+
+    final variants = <String>{
+      trimmed,
+      collapsed,
+      upper,
+      compact,
+    };
+
+    final match = RegExp(r'^DV(\d+)-(\d+)$').firstMatch(compact);
+    if (match != null) {
+      final serial = match.group(1)!;
+      final year = match.group(2)!;
+      variants.add('DV $serial - $year');
+      variants.add('DV $serial-$year');
+      variants.add('DV$serial-$year');
+      variants.add('DV$serial - $year');
+    }
+
+    return variants.where((value) => value.isNotEmpty).take(10).toList();
+  }
+
   // Get all trip logs for a user (chronologically ordered)
   Future<List<TripLog>> getTripLogsByUserId(String userId) async {
     try {

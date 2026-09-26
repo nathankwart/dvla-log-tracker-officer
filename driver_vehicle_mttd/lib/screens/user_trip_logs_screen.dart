@@ -7,9 +7,14 @@ import '../widgets/loading_indicator.dart';
 import '../widgets/error_message.dart';
 
 class UserTripLogsScreen extends StatefulWidget {
-  final String userId;
+  final String? userId;
+  final String? registrationNumber;
 
-  const UserTripLogsScreen({super.key, required this.userId});
+  const UserTripLogsScreen({
+    super.key,
+    this.userId,
+    this.registrationNumber,
+  }) : assert(userId != null || registrationNumber != null);
 
   @override
   State<UserTripLogsScreen> createState() => _UserTripLogsScreenState();
@@ -22,9 +27,22 @@ class _UserTripLogsScreenState extends State<UserTripLogsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<TripLogsProvider>(context, listen: false)
-          .fetchTripLogsByUserId(widget.userId);
+      _loadTripLogs();
     });
+  }
+
+  void _loadTripLogs() {
+    final provider = Provider.of<TripLogsProvider>(context, listen: false);
+    final registrationNumber = widget.registrationNumber?.trim();
+    if (registrationNumber != null && registrationNumber.isNotEmpty) {
+      provider.fetchTripLogsByRegistrationNumber(registrationNumber);
+      return;
+    }
+
+    final userId = widget.userId;
+    if (userId != null && userId.isNotEmpty) {
+      provider.fetchTripLogsByUserId(userId);
+    }
   }
 
   @override
@@ -40,10 +58,7 @@ class _UserTripLogsScreenState extends State<UserTripLogsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              Provider.of<TripLogsProvider>(context, listen: false)
-                  .fetchTripLogsByUserId(widget.userId);
-            },
+            onPressed: _loadTripLogs,
             tooltip: 'Refresh',
           ),
         ],
@@ -59,9 +74,7 @@ class _UserTripLogsScreenState extends State<UserTripLogsScreen> {
           if (provider.hasError) {
             return ErrorMessage(
               message: provider.errorMessage ?? 'An error occurred',
-              onRetry: () {
-                provider.fetchTripLogsByUserId(widget.userId);
-              },
+              onRetry: _loadTripLogs,
             );
           }
 
